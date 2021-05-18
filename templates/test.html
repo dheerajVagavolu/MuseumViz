@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuseumViz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"/>
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-treemap.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
+    <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" type="text/css" rel="stylesheet">
+    <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" type="text/css" rel="stylesheet">
+
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-base.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-polar.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-exports.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-ui.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+
+
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-base.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-sunburst.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-exports.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-ui.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="shortcut icon" type="image/jpg" href={{url_for('static', filename='images/favicon.jpg')}}/>
+    
+
+</head>
+
+<body>
+
+    <div class="head">
+      <div class="head-con">
+        <h1 class="display-6">MuseumViz</h1>
+        <h4 class="lead">MuseumViz aims to enhance the existing online museums in India for better comprehension of data and improved user experience.</p>
+      </div>
+
+      <!-- <div class="head-logo">
+        <img id="logo" src={{url_for('static', filename='images/logo.jpg')}} alt="">
+      </div> -->
+    </div>
+
+    <div id="body">
+      <div id="legend">
+        
+        <ul class="legend">
+          <li>Edge Types: </li>
+          <li><span class="mat"></span> Main Material</li>
+          <li><span class="typ"></span> Object Type</li>
+          <li><span class="dynasty"></span>Patron/Dynasty</li>
+          <li><span class="origin"></span> Origin Place</li>
+      </ul>
+      </div>
+      <div id="select">
+            
+        <div id="actions">
+
+
+        
+        <select name="visual" id="dim">
+            <option value="mat">Material Used</option>
+            <option value="dynasty">Patron/Dynasty</option>
+            <option value="origin">Origin</option>
+            <option value="type">Object Type</option>
+        </select>
+
+        <select name="visual" class="dropdown" id="visual">
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">  
+            <option class="dropdown-item" value="network">Network Graph</option>
+            <option class="dropdown-item" value="tree_map">Tree Map</option>
+            
+            <optgroup label="Proportional Visualizations">
+              <option class="dropdown-item" value="bar">Sunburst Chart</option>
+              <option class="dropdown-item" value="pie">Polygon Chart</option>
+            </optgroup>
+            
+            
+          </div>
+        </select>
+
+        <button type="button" class="btn btn-primary" onclick="generate_vis()" id="submit">Go</button>
+
+        </div>
+
+      </div>
+        
+    
+    <div id="vis">
+            <!-- <svg viewBox='0 0 750 500'/> -->
+            
+            <div id="land">
+              <div class="container">
+                <div class="inner">
+
+                </div>
+              </div>
+            </div>
+        </div>
+        
+        
+    </div>
+
+    <div class="jumbotron">
+      <h1 class="display-5">Visualization of Online Museum data</h1>
+      <a class="lead" href="http://museumsofindia.gov.in/repository/museum/gom_goa" target="_blank">Data source: National Online Museum of Goa, India</a>
+
+      
+      
+      <hr class="my-4">
+      
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+    <style>
+
+      /* basic positioning */
+    .legend { list-style: none; }
+    .legend li { float: left; margin-right: 10px; }
+    .legend span { border: 1px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px;  margin-top: 4px;}
+    /* your colors */
+    .legend .mat { background-color: #e1d276; }
+    .legend .typ { background-color: #8986ea; }
+    .legend .dynasty { background-color: #0000ff; }
+    .legend .origin { background-color: #00ffff; }
+
+        html{
+            height: 100%;
+            font-family: 'Open Sans', sans-serif;
+        }
+        body{
+            /* border: 1mm solid green; */
+            padding: 30px;
+            height: 100%;
+            font-family: 'Open Sans', sans-serif;
+            
+        }
+
+        /* basic positioning */
+
+        
+        #logo{
+          height:100px;
+          border-radius: 3px;
+        }
+
+        .head{
+            /* border: 1mm solid red; */
+            /* height: 50px;*/
+            border-radius: 10px;
+            background-color: #48515d;
+            padding: 20px;
+            color: white;
+            overflow:auto;
+        }
+
+        .head-con{
+          float: left;
+        }
+
+        .head-logo{
+          float: right;
+        }
+
+        #legend{
+          visibility: hidden;
+        }
+
+        #body{
+            /* border: 1mm solid saddlebrown; */
+            /* height: 800px; */
+            padding: 20px;
+            text-align: center;
+            
+        }
+
+        #vis{
+            /* border: 1mm solid rebeccapurple; */
+            /* height: 620px; */
+            margin: auto;
+            overflow: auto;
+            
+        }
+
+
+        svg {
+            width: 100%;
+            height: 100%;
+          }
+          
+          .bar {
+            fill: #58d8cb;
+          }
+          
+
+          
+
+          
+          line#limit {
+            stroke: #FED966;
+            stroke-width: 3;
+            stroke-dasharray: 3 6;
+          }
+          
+          .grid path {
+            stroke-width: 0;
+          }
+          
+          .grid .tick line {
+            /* stroke: #9FAAAE; */
+            stroke-opacity: 0.3;
+          }
+          
+          text.divergence {
+            font-size: 12px;
+            fill: #2F4A6D;
+          }
+          
+          text.value {
+            font-size: 12px;
+          }
+          
+          text.title {
+            font-size: 22px;
+            font-weight: 600;
+          }
+          
+          text.label {
+            font-size: 12px;
+            font-weight: 400;
+          }
+          
+          text.source {
+            font-size: 10px;
+          }
+
+        #select{
+            /* border: 1mm solid rgb(51, 153, 68); */
+            height:100px;
+            float: right;
+        }
+
+        #options{
+            padding: 10px;
+        }
+
+        #actions{
+            padding: 10px;
+        }
+
+        #foot{
+            /* border: 1mm solid blue; */
+            height: 50px;
+            bottom: 0px;
+            
+        }
+
+        #dim{
+          visibility: hidden;
+        }
+
+        .btn{
+          margin-left: 20px;
+          width: 100px;
+        }
+
+        select{
+          padding-left: 20px;
+          padding-right: 20px;
+          padding-top: 5px;
+          padding-bottom: 5px;
+        }
+
+
+    </style>
+    
+    <script>
+
+
+        var mat = {{ mat|tojson|safe }};
+        console.log(mat);
+
+        var sunb = {{ sunb|tojson }};
+        console.log(sunb);
+
+        var dynasty = {{ dynasty|tojson }}
+        console.log(dynasty);
+
+        var origin = {{ origin|tojson }}
+        console.log(origin);
+
+        var typ = {{ typ|tojson }}
+        console.log(typ);
+
+        var trree = {{ trree|tojson }}
+        console.log(trree);
+
+
+
+        
+
+        var tree = [];
+
+        tree.push({"id": "home",
+            "product": "Tree Map Visualization",
+            "parent": null})
+        
+
+        var num = 0;
+        tree.push({"id": "000",
+            "product": "Material Used",
+            "parent": "home"})
+        for(i = 0; i < mat.length; i++){
+            tree.push({"parent": "000", "id": mat[i]["language"], "product": mat[i]["language"], "value": mat[i]["value"]})
+
+            
+            num = num + 1;
+        }
+
+        // for(i = 0; i < trree['mat'].length; i++){
+        //   tree.push({"parent":trree['mat'][i], "id":trree['mat'][i], "product":trree['mat'][i], "value":1})
+        // }
+
+        for( var key in trree['mat']){
+          if (trree['mat'].hasOwnProperty(key)){
+            for (i = 0; i < trree['mat'][key].length   ; i++){
+              try { 
+                console.log(trree['mat'][key][i]);
+                
+
+                  tree.push({"parent": key, "id": num, "product": trree['mat'][key][i]["Title"], 
+                  "url": trree['mat'][key][i]["img"], 
+                  "Patron/Dynasty": trree['mat'][key][i]["Patron/Dynasty"], 
+                  "Main Material": trree['mat'][key][i]["Main Material"], 
+                  "Origin Place": trree['mat'][key][i]["Origin Place"], 
+                  "Object Type": trree['mat'][key][i]["Object Type"], 
+                  "Accession Number": trree['mat'][key][i]["Accession Number"], 
+                  "value": 1, "level": 3});
+                  num = num + 1;
+              } catch (error) {
+                continue;
+              }
+              
+            }
+            
+          }
+        }
+
+        tree.push({"id": "1000",
+            "product": "Dynasty",
+            "parent": "home"})
+        for(i = 0; i < dynasty.length; i++){
+            tree.push({"parent": "1000", "id": dynasty[i]["language"], "product": dynasty[i]["language"], "value": dynasty[i]["value"]})
+            num = num + 1;
+        }
+
+        for( var key in trree['dynasty']){
+          if (trree['dynasty'].hasOwnProperty(key)){
+            for (i = 0; i < trree['dynasty'][key].length   ; i++){
+              try { 
+                console.log(trree['dynasty'][key][i]);
+                
+
+                  tree.push({"parent": key, "id": num, "product": trree['dynasty'][key][i]["Title"], 
+                  "url": trree['dynasty'][key][i]["img"], 
+                  "Patron/Dynasty": trree['dynasty'][key][i]["Patron/Dynasty"], 
+                  "Main Material": trree['dynasty'][key][i]["Main Material"], 
+                  "Origin Place": trree['dynasty'][key][i]["Origin Place"], 
+                  "Object Type": trree['dynasty'][key][i]["Object Type"], 
+                  "Accession Number": trree['dynasty'][key][i]["Accession Number"], 
+                  "value": 1, "level": 3});
+                  num = num + 1;
+              } catch (error) {
+                continue;
+              }
+              
+            }
+            
+          }
+        }
+
+
+
+        tree.push({"id": "2000",
+            "product": "Origin",
+            "parent": "home"})
+        for(i = 0; i < origin.length; i++){
+            tree.push({"parent": "2000", "id": origin[i]["language"], "product": origin[i]["language"], "value": origin[i]["value"]})
+            num = num + 1;
+        }
+
+        for( var key in trree['origin']){
+          if (trree['origin'].hasOwnProperty(key)){
+            for (i = 0; i < trree['origin'][key].length   ; i++){
+              try { 
+                console.log(trree['origin'][key][i]);
+                
+
+                  tree.push({"parent": key, "id": num, "product": trree['origin'][key][i]["Title"], 
+                  "url": trree['origin'][key][i]["img"], 
+                  "Patron/Dynasty": trree['origin'][key][i]["Patron/Dynasty"], 
+                  "Main Material": trree['origin'][key][i]["Main Material"], 
+                  "Origin Place": trree['origin'][key][i]["Origin Place"], 
+                  "Object Type": trree['origin'][key][i]["Object Type"], 
+                  "Accession Number": trree['origin'][key][i]["Accession Number"], 
+                  "value": 1, "level": 3});
+                  num = num + 1;
+              } catch (error) {
+                continue;
+              }
+              
+            }
+            
+          }
+        }
+
+
+
+
+
+        tree.push({"id": "3000",
+            "product": "Object Type",
+            "parent": "home"})
+        for(i = 0; i < typ.length; i++){
+            tree.push({"parent": "3000", "id": typ[i]["language"], "product": typ[i]["language"], "value": typ[i]["value"]})
+            num = num + 1;
+        }
+
+        for( var key in trree['typ']){
+          if (trree['typ'].hasOwnProperty(key)){
+            for (i = 0; i < trree['typ'][key].length   ; i++){
+              try { 
+
+                console.log(trree['typ'][key][i]);
+                  tree.push({"parent": key, "id": num, "product": trree['typ'][key][i]["Title"], 
+                  "url": trree['typ'][key][i]["img"], 
+                  "Patron/Dynasty": trree['typ'][key][i]["Patron/Dynasty"], 
+                  "Main Material": trree['typ'][key][i]["Main Material"], 
+                  "origin": trree['typ'][key][i]["Origin Place"], 
+                  "Object Type": trree['typ'][key][i]["Object Type"], 
+                  "Accession Number": trree['typ'][key][i]["Accession Number"], 
+                  "value": 1, "level": 3});
+
+                  num = num + 1;
+              } catch (error) {
+                continue;
+              }
+              
+            }
+            
+          }
+        }
+
+
+        var graph = {{ obj|tojson }}
+        console.log(graph['nodes'])
+
+        var net_data = {'nodes': graph['nodes'], 
+                'edges': graph['edges']}
+
+        
+        function display_network(net_data){
+
+            var container = document.getElementById('vis');
+            container.style.width = "100%";
+            var data = net_data;
+            var options = {
+                        
+                        "physics": {
+                          "enabled": false,
+                          "minVelocity": 0.75
+                        },
+                        "nodes": {
+                            "borderWidth": 4,
+                            "size": 10
+                        },
+                        
+                        };
+            var network = new vis.Network(container, data, options);
+            
+                  
+            
+        }
+
+        function display_sunb(mat, domain_max){
+          var container = document.getElementById('vis');
+            container.style.width = "100%";
+
+            anychart.onDocumentReady(function () {
+
+                // create data
+                var data = sunb;
+            
+                // create a chart and set the data
+                var chart = anychart.sunburst(data, "as-tree");
+
+                chart.calculationMode("parent-dependent");
+            
+                // set the chart title
+                chart.title().useHtml(true);
+                chart.title("Sunburst Chart<br><br>" +
+                            "<span style='font-size:12; font-style:italic'>" +
+                            "Goa National Museum</span>");
+            
+                chart.container("vis");
+            
+                chart.draw();
+            });
+        
+        }
+
+        function display_tree(){
+          var container = document.getElementById('vis');
+            container.style.width = "100%";
+            anychart.onDocumentReady(function () {
+                
+                anychart.data.loadJsonFile(
+                  'https://cdn.anychart.com/samples/tree-map-charts/acme-products-by-revenue/data.json',
+                  function (data) {
+                    
+                    var dataTree = anychart.data.tree(tree, 'as-table');
+                    var chart = anychart.treeMap(dataTree);
+          
+                    
+                    chart
+                      .title()
+                      .enabled(true)
+                      .useHtml(true)
+                      .padding([0, 0, 20, 0])
+                      .text(
+                        '<span style="color:#212121; font-size: 13px;">Tree Map Visualization shows the data from Goa National museum in a heirarchical manner based on different dimensions.</span>'
+                      );
+          
+                    // sets scale
+                    var scale = anychart.scales.ordinalColor([
+                      { less: 1 },
+                      { from: 1, to: 10 },
+                      { from: 10, to: 50 },
+                      { from: 50, to: 150 },
+                      { from: 150, to: 250 },
+                      { greater: 300 }
+                    ]);
+          
+                    // sets colors for scale
+                    scale.colors([
+                      '#7EC0EE',
+                      '#e93e3a',
+                      '#ed683c',
+                      '#f3903f',
+                      '#fdc70c',
+                      '#fff33b'
+                      
+                    ]);
+          
+                    // sets chart settings
+                    chart
+                      .padding([10, 10, 10, 20])
+                      // setting the number of levels shown
+                      .maxDepth(2)
+                      .selectionMode('none')
+                      .colorScale(scale)
+                      .hovered({ fill: '#bdbdbd' });
+          
+                    // sets padding for legend
+                    chart
+                      .legend()
+                      .enabled(true)
+                      .padding([0, 0, 0, 20])
+                      .position('right')
+                      .align('top')
+                      .itemsLayout('vertical');
+
+                      var title = chart.legend().title();
+                  title.useHtml(true);
+
+                  title.enabled(true);
+                  title.text("Number of Artifacts<br>");
+                  title.fontSize(14);
+                  title.hAlign("center");
+          
+                    // sets settings for labels
+                    chart
+                      .labels()
+                      .useHtml(true)
+                      .fontColor('#212121')
+                      .fontSize(12)
+                      .format(function () {
+                        return this.getData('product');
+                      });
+          
+                    // sets settings for headers
+                    chart.headers().format(function () {
+                      return this.getData('product');
+                    });
+          
+                    // sets settings for tooltip
+                    chart
+                      .tooltip()
+                      .useHtml(true)
+                      .titleFormat(function () {
+                        return this.getData('product');
+                      })
+                      .format(function () {
+                        
+
+                          if (this.getData('level') == 3) {
+                            return (
+                              '<img style = "height: 150px" src="' +this.getData('url') + '">' + 
+                              '<br> Accession Number: "'+ this.getData("Accession Number") +'"' +
+                              '<br> Patron/Dynasty: "'+ this.getData("Patron/Dynasty") +'"' +
+                              '<br> Main Material: "'+ this.getData("Main Material") +'"' + 
+                              '<br> Origin Place: "'+ this.getData("origin") +'"' + 
+                              '<br> Object Type: "'+ this.getData("Object Type") +'"'
+                            );
+                          }
+
+                          return(
+                            '<span style="color: #bfbfbf">Number of Artifacts: </span>' + 
+                            anychart.format.number(this.value, { groupsSeparator: ' ' })
+                          );
+
+                          
+                          
+                        
+                      });
+                      
+
+                      chart.listen("click", function() {
+                          console.log(this);
+                      });
+                    
+                    
+                    
+                    
+                      // set container id for the chart
+                    
+                    chart.container('vis');
+
+                    // initiate chart drawing
+                    chart.draw();
+                  }
+                );
+              });
+        }
+
+        
+        function display_pie(mat, _title){
+          var container = document.getElementById('vis');
+            container.style.width = "100%";
+            var data = [];
+            var i = 0;
+            for(i = 0; i < mat.length; ++i){
+                data.push({x: mat[i]["language"], value: mat[i]["value"]})
+            }
+            
+            
+            console.log(data);
+
+            // create a pie chart and set the data
+            chart = anychart.polar();
+            var series = chart.polygon(data);
+
+            chart.xScale("ordinal");
+
+            // enable sorting points by x
+            chart.sortPointsByX(true);
+
+            /* set the inner radius
+            (to turn the pie chart into a doughnut chart)*/
+            chart.innerRadius("30%");
+
+            var labels = chart.labels();
+            labels.enabled(true);
+            labels.fontColor("white");
+            labels.fontWeight(400);
+            
+            
+
+            chart.title('Polygon Chart (' + _title + ')');
+
+            // set the container id
+            chart.container("vis");
+
+            // initiate drawing the chart
+            chart.draw();
+           
+
+        }
+
+        
+
+        function generate_vis(){
+            var str_sel = document.getElementById("visual").value;
+            document.getElementById("body").style.fontColor = 'white';
+            document.getElementById("vis").style.height = "620px"; 
+            document.getElementById("legend").style.visibility = 'hidden';
+
+            var type_sel = document.getElementById("dim").value;
+            if(str_sel == "bar"){
+                document.getElementById("dim").style.visibility = 'hidden';
+                document.getElementById("vis").innerHTML = ""; 
+                display_sunb(dynasty, 800);
+                
+                
+            } else if(str_sel == "network") {
+                document.getElementById("dim").style.visibility = 'hidden';
+                document.getElementById("legend").style.visibility = 'visible';
+                document.getElementById("vis").innerHTML = "";
+                display_network(net_data);
+            } else if(str_sel == "tree_map") {
+              document.getElementById("dim").style.visibility = 'hidden';
+                document.getElementById("vis").innerHTML = "";
+                display_tree();
+            } 
+            else if(str_sel == "pie") {
+
+                document.getElementById("dim").style.visibility = 'visible';
+                
+                
+
+
+                document.getElementById("vis").innerHTML = "";
+                var te = document.getElementsByTagName("text");
+
+                var i;
+                for (i = 0; i < te.length; i++) {
+                    te[i].style.fill = "white";
+                    te[i].style.color = "white";
+                }
+                
+
+                if(type_sel == "dynasty"){
+                    display_pie(dynasty, "Patron/Dynasty");
+                }else if(type_sel == "origin"){
+                    display_pie(origin, "Origin");
+                }else if(type_sel == "type"){
+                    display_pie(typ, "Type");
+                }else if(type_sel == "mat"){
+                    display_pie(mat, "Material Type");
+                }
+
+            } 
+        }
+
+        // display_network(net_data);
+        
+
+        
+        
+        
+
+        
+    </script>
+</body>
+</html>
